@@ -1,8 +1,6 @@
 /lib
-*.a
 *.o
 *.d
-*.bin
 *.elf
 *.hex
 *.map
@@ -12,6 +10,8 @@
 *.objdump
 *.img
 *.xz
+/project/**/*.a
+/project/**/*.bin
 /project/*/gcc/*.iex
 /project/*/gcc/*.dep
 /project/*/gcc/*.build_log.htm
