@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------------
 # cross compiler
 # ----------------------------------------------------------------------------
-CC_DIR := ~/tools/gcc-arm-none-eabi-4_9-2015q2/bin
+CC_DIR := /home/yuzuki/WorkSpace/XR32SDK/tools/gcc-arm-none-eabi-4_9-2015q2/bin
 CC_PREFIX := $(CC_DIR)/arm-none-eabi-
 
 AS      := $(CC_PREFIX)as
