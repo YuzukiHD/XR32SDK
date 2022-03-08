@@ -12,6 +12,7 @@
 *.xz
 /project/**/*.a
 /project/**/*.bin
+/src/**/*.a
 /project/*/gcc/*.iex
 /project/*/gcc/*.dep
 /project/*/gcc/*.build_log.htm

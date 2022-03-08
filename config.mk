@@ -14,7 +14,7 @@ ifeq ($(__CONFIG_CHIP_TYPE), xr871)
   __CONFIG_CHIP_SERIES_XR32 := n
 endif
 ifeq ($(__CONFIG_CHIP_TYPE), xr32)
-  __CONFIG_CHIP_XR871 := y
+  __CONFIG_CHIP_XR871 := n
   __CONFIG_CHIP_SERIES_XR32 := y
 endif
 
