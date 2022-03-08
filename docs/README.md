@@ -59,6 +59,8 @@ make
 make image
 ```
 
+<script id="asciicast-wHaitrmLcMZ4eGuQukl3y4Im0" src="https://asciinema.org/a/wHaitrmLcMZ4eGuQukl3y4Im0.js" async></script>
+
 ### One command
 ```shell
 cd project/example/uart/gcc
