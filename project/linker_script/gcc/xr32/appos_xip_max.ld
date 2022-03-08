@@ -1,8 +1,9 @@
 /* Linker script to configure memory regions. */
 MEMORY
 {
-	RAM   (rwx) : ORIGIN = 0x00010000, LENGTH = 448K
-	FLASH (rx)  : ORIGIN = 0x10000000, LENGTH = 1024K
+	RAM     (rwx) : ORIGIN = 0x00010000, LENGTH = 448K
+	RAM_EXT (rwx) : ORIGIN = 0x60000000, LENGTH = 384K
+	FLASH   (rx)  : ORIGIN = 0x10000000, LENGTH = 1024K
 }
 
 __RAM_BASE = ORIGIN(RAM);
@@ -46,33 +47,13 @@ SECTIONS
 		/* MUST not put IRQ handler/callback in .xip section */
 		*libmp3.a: (.text .text.* .rodata .rodata.*)
 		*libaac.a: (.text .text.* .rodata .rodata.*)
-		*libwav.a: (.text .text.* .rodata .rodata.*)
 		*libamr.a: (.text .text.* .rodata .rodata.*)
 		*libamren.a: (.text .text.* .rodata .rodata.*)
-		*libreverb.a: (.text .text.* .rodata .rodata.*)
 		*libcedarx.a: (.text .text.* .rodata .rodata.*)
 		*libpcm.a: (.text .text.* .rodata .rodata.*)
 		*libaudmgr.a: (.text .text.* .rodata .rodata.*)
-		*liblwip.a: (.text .text.* .rodata .rodata.*)
-		*libmbedtls.a: (.text .text.* .rodata .rodata.*)
-		*libhttpcli.a: (.text .text.* .rodata .rodata.*)
-		*libhttpd.a: (.text .text.* .rodata .rodata.*)
-		*libmqtt.a: (.text .text.* .rodata .rodata.*)
-		*libnopoll.a: (.text .text.* .rodata .rodata.*)
-		*liblibwebsockets.a: (.text .text.* .rodata .rodata.*)
-		*libping.a: (.text .text.* .rodata .rodata.*)
-		*libsntp.a: (.text .text.* .rodata .rodata.*)
-		*libudhcpd.a: (.text .text.* .rodata .rodata.*)
-		*libaliyun.a: (.text .text.* .rodata .rodata.*)
-		*libwlan.a: (.text .text.* .rodata .rodata.*)
-		*libxrsys.a: (.text .text.* .rodata .rodata.*)
-		*libsc_assistant.a: (.text .text.* .rodata .rodata.*)
-		*libsmartlink.a: (.text .text.* .rodata .rodata.*)
-		*libairkiss_aes.a: (.text .text.* .rodata .rodata.*)
-		*libadt.a: (.text .text.* .rodata .rodata.*)
 		*libcjson.a: (.text .text.* .rodata .rodata.*)
 		*libfs.a: (.text .text.* .rodata .rodata.*)
-		*libatcmd.a: (.text .text.* .rodata .rodata.*)
 		*libefpg.a: (.text .text.* .rodata .rodata.*)
 		*libota.a: (.text .text.* .rodata .rodata.*)
 		*libxz.a: (.text .text.* .rodata .rodata.*)
@@ -194,7 +175,6 @@ SECTIONS
 
 		*project/common/board/board.o (.text .text.* .rodata .rodata.*)
 		*project/common/cmd*.o (.text .text.* .rodata .rodata.*)
-		*project/common/iperf*.o (.text .text.* .rodata .rodata.*)
 		*project/common/framework*.o (.text .text.* .rodata .rodata.*)
 		*command.o (.text .text.* .rodata .rodata.*)
 
@@ -203,6 +183,45 @@ SECTIONS
 		. = ALIGN(4);
 		__xip_end = .;
 	} > FLASH
+
+	.text_ext :
+	{
+		. = ALIGN(4);
+		__text_ext_start__ = .;
+
+		/* put text section in the extern RAM
+		 * eg. *libfoo.a: (.text* .nonxip_text* .rodata* .nonxip_rodata*)
+		 */
+
+		. = ALIGN(4);
+		__text_ext_end__ = .;
+	} > RAM_EXT
+
+	.data_ext :
+	{
+		. = ALIGN(4);
+		__data_ext_start__ = .;
+
+		/* put data section in the extern RAM
+		 * eg. *libfoo.a: (.data* .nonxip_data* vtable)
+		 */
+
+		. = ALIGN(4);
+		__data_ext_end__ = .;
+	} > RAM_EXT
+
+	.bss_ext :
+	{
+		. = ALIGN(4);
+		__bss_ext_start__ = .;
+
+		/* put bss section in the extern RAM
+		 * eg. *libfoo.a: (.bss* COMMON)
+		 */
+
+		. = ALIGN(4);
+		__bss_ext_end__ = .;
+	} > RAM_EXT
 
 	.text :
 	{

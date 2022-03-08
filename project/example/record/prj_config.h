@@ -135,7 +135,7 @@ extern "C" {
 #define PRJCONF_PM_EN                   0
 
 /* network and wlan enable/disable */
-#define PRJCONF_NET_EN                  1
+#define PRJCONF_NET_EN                  0
 
 /* net pm mode enable/disable */
 #define PRJCONF_NET_PM_EN               0

@@ -5,11 +5,13 @@
 # ----------------------------------------------------------------------------
 # board definition
 # ----------------------------------------------------------------------------
-__PRJ_CONFIG_BOARD := xr871_evb_main
+__PRJ_CONFIG_BOARD := xr32_evb
 
 # ----------------------------------------------------------------------------
 # override global config options
 # ----------------------------------------------------------------------------
+# set chip type: xr871 or xr32
+export __CONFIG_CHIP_TYPE := xr32
 # set y to enable bootloader and disable some features, for bootloader only
 # export __CONFIG_BOOTLOADER := y
 
@@ -19,8 +21,8 @@ __PRJ_CONFIG_BOARD := xr871_evb_main
 # ----------------------------------------------------------------------------
 # override project common config options
 # ----------------------------------------------------------------------------
-# support both sta and ap, default to n
-# __PRJ_CONFIG_WLAN_STA_AP := y
+# support ram extended in another address space, for xr32 only, default to n
+__PRJ_CONFIG_RAM_EXT := y
 
 # support xplayer, default to n
 # __PRJ_CONFIG_XPLAYER := y

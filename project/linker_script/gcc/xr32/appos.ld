@@ -1,7 +1,8 @@
 /* Linker script to configure memory regions. */
 MEMORY
 {
-	RAM   (rwx) : ORIGIN = 0x00010000, LENGTH = 448K
+	RAM     (rwx) : ORIGIN = 0x00010000, LENGTH = 448K
+	RAM_EXT (rwx) : ORIGIN = 0x60000000, LENGTH = 384K
 }
 
 __RAM_BASE = ORIGIN(RAM);
@@ -37,6 +38,45 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
+	.text_ext :
+	{
+		. = ALIGN(4);
+		__text_ext_start__ = .;
+
+		/* put text section in the extern RAM
+		 * eg. *libfoo.a: (.text* .nonxip_text* .rodata* .nonxip_rodata*)
+		 */
+
+		. = ALIGN(4);
+		__text_ext_end__ = .;
+	} > RAM_EXT
+
+	.data_ext :
+	{
+		. = ALIGN(4);
+		__data_ext_start__ = .;
+
+		/* put data section in the extern RAM
+		 * eg. *libfoo.a: (.data* .nonxip_data* vtable)
+		 */
+
+		. = ALIGN(4);
+		__data_ext_end__ = .;
+	} > RAM_EXT
+
+	.bss_ext :
+	{
+		. = ALIGN(4);
+		__bss_ext_start__ = .;
+
+		/* put bss section in the extern RAM
+		 * eg. *libfoo.a: (.bss* COMMON)
+		 */
+
+		. = ALIGN(4);
+		__bss_ext_end__ = .;
+	} > RAM_EXT
+
 	.text :
 	{
 		. = ALIGN(4);

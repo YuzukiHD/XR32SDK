@@ -52,6 +52,6 @@ OBJS := $(addsuffix .o,$(SRCS))
 
 # image name, default to xr_system
 # IMAGE_NAME :=
-
+IMAGE_CFG := ./image_auto_cal.cfg
 # project make rules
 include $(PRJ_MAKE_RULES)

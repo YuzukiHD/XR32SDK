@@ -5,22 +5,28 @@
 # ----------------------------------------------------------------------------
 # board definition
 # ----------------------------------------------------------------------------
-__PRJ_CONFIG_BOARD := xr871_evb_audio
+__PRJ_CONFIG_BOARD := xr32_evb
 
 # ----------------------------------------------------------------------------
 # override global config options
 # ----------------------------------------------------------------------------
+# set chip type: xr871 or xr32
+export __CONFIG_CHIP_TYPE := xr32
+
 # set y to enable bootloader and disable some features, for bootloader only
 # export __CONFIG_BOOTLOADER := y
 
-# set n to disable dual core features, for bootloader only
-# export __CONFIG_ARCH_DUAL_CORE := n
+# set n to disable dual core features
+export __CONFIG_ARCH_DUAL_CORE := n
+
+# set y to support bin compression
+# export __CONFIG_BIN_COMPRESS := y
 
 # ----------------------------------------------------------------------------
 # override project common config options
 # ----------------------------------------------------------------------------
-# support both sta and ap, default to n
-# __PRJ_CONFIG_WLAN_STA_AP := y
+# support ram extended in another address space, for xr32 only, default to n
+__PRJ_CONFIG_RAM_EXT := y
 
 # support xplayer, default to n
 __PRJ_CONFIG_XPLAYER := y
@@ -34,4 +40,4 @@ export __CONFIG_XIP_SECTION_FUNC_LEVEL := y
 endif
 
 # enable OTA, default to n
-# __PRJ_CONFIG_OTA := y
+__PRJ_CONFIG_OTA := n

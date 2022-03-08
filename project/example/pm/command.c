@@ -30,81 +30,6 @@
 #include "common/cmd/cmd_util.h"
 #include "common/cmd/cmd.h"
 
-#define COMMAND_IPERF       1
-#define COMMAND_PING        1
-#define COMMAND_HTTPC       0
-#define COMMAND_TLS         0
-#define COMMAND_HTTPD       0
-#define COMMAND_MQTT        0
-#define COMMAND_NOPOLL      0
-#define COMMAND_SNTP        0
-#define COMMAND_DHCPD       0
-#define COMMAND_BRROADCAST  0
-#define COMMAND_ARP         0
-
-/*
- * net commands
- */
-static struct cmd_data g_net_cmds[] = {
-#ifdef __PRJ_CONFIG_WLAN_STA_AP
-	{ "mode",		cmd_wlan_mode_exec },
-	{ "ap", 		cmd_wlan_ap_exec },
-#endif
-
-	{ "sta",		cmd_wlan_sta_exec },
-	{ "ifconfig",	cmd_ifconfig_exec },
-	{ "airkiss", cmd_airkiss_exec },
-
-#if COMMAND_IPERF
-	{ "iperf",		cmd_iperf_exec },
-#endif
-
-#if COMMAND_PING
-	{ "ping",		cmd_ping_exec },
-#endif
-
-#if COMMAND_HTTPC
-	{ "httpc",		cmd_httpc_exec },
-#endif
-
-#if COMMAND_TLS
-	{ "tls",		cmd_tls_exec },
-#endif
-
-#if COMMAND_HTTPD
-	{ "httpd",		cmd_httpd_exec },
-#endif
-
-#if COMMAND_SNTP
-	{ "sntp",		cmd_sntp_exec },
-#endif
-
-#if COMMAND_NOPOLL
-	{ "nopoll",		cmd_nopoll_exec },
-#endif
-
-#if COMMAND_MQTT
-	{ "mqtt",		cmd_mqtt_exec },
-#endif
-
-#if COMMAND_DHCPD
-	{ "dhcpd",		cmd_dhcpd_exec },
-#endif
-
-#if COMMAND_BRROADCAST
-	{ "broadcast",  cmd_broadcast_exec },
-#endif
-
-#if COMMAND_ARP
-	{ "arp",        cmd_arp_exec },
-#endif
-};
-
-static enum cmd_status cmd_net_exec(char *cmd)
-{
-	return cmd_exec(cmd, g_net_cmds, cmd_nitems(g_net_cmds));
-}
-
 /*
  * driver commands
  */
@@ -120,7 +45,6 @@ static enum cmd_status cmd_drv_exec(char *cmd)
  * main commands
  */
 static struct cmd_data g_main_cmds[] = {
-	{ "net",	cmd_net_exec },
 	{ "drv",	cmd_drv_exec },
 	{ "echo",	cmd_echo_exec },
 	{ "mem",	cmd_mem_exec },
@@ -133,7 +57,6 @@ static struct cmd_data g_main_cmds[] = {
 #endif
 	{ "pm",		cmd_pm_exec },
 	{ "efpg",	cmd_efpg_exec },
-	{ "netcmd",	cmd_netcmd_exec },
 	{ "sysinfo",cmd_sysinfo_exec },
 };
 

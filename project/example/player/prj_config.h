@@ -45,7 +45,7 @@ extern "C" {
 #define PRJCONF_MAIN_THREAD_PRIO        OS_THREAD_PRIO_APP
 
 /* main thread stack size */
-#define PRJCONF_MAIN_THREAD_STACK_SIZE  (2 * 1024)
+#define PRJCONF_MAIN_THREAD_STACK_SIZE  (1 * 1024)
 
 /* sys ctrl enable/disable */
 #define PRJCONF_SYS_CTRL_EN             1
@@ -69,7 +69,7 @@ extern "C" {
 #define PRJCONF_IMG_MAX_SIZE            ((1024 - 4) * 1024)
 
 /* save sysinfo to flash or not */
-#define PRJCONF_SYSINFO_SAVE_TO_FLASH	1
+#define PRJCONF_SYSINFO_SAVE_TO_FLASH	0
 
 #if PRJCONF_SYSINFO_SAVE_TO_FLASH
 
@@ -91,7 +91,7 @@ extern "C" {
 #define PRJCONF_MAC_ADDR_SOURCE         SYSINFO_MAC_ADDR_CHIPID
 
 /* watchdog enable/disable */
-#define PRJCONF_WDG_EN                  0
+#define PRJCONF_WDG_EN                  1
 
 /* watchdog timeout value */
 #define PRJCONF_WDG_TIMEOUT             WDG_TIMEOUT_16SEC
@@ -110,7 +110,7 @@ extern "C" {
 #define PRJCONF_CE_EN                   1
 
 /* spi enable/disable */
-#define PRJCONF_SPI_EN                  1
+#define PRJCONF_SPI_EN                  0
 
 /* mmc enable/disable */
 #define PRJCONF_MMC_EN                  1
@@ -132,13 +132,16 @@ extern "C" {
 #define PRJCONF_CONSOLE_EN              0
 
 /* app pm mode enable/disable */
-#define PRJCONF_PM_EN                   0
+#define PRJCONF_PM_EN                   1
 
 /* network and wlan enable/disable */
-#define PRJCONF_NET_EN                  1
+#define PRJCONF_NET_EN                  0
 
 /* net pm mode enable/disable */
 #define PRJCONF_NET_PM_EN               0
+
+/* environment variable "TZ" for time zone setting */
+#define PRJCONF_ENV_TZ                  "TZ=GMT-8"
 
 #ifdef __cplusplus
 }

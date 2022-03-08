@@ -49,7 +49,7 @@ OBJS := $(addsuffix .o,$(SRCS))
 #     default one
 # IMAGE_CFG_PATH := .
 # IMAGE_CFG :=
-
+IMAGE_CFG := ./image_auto_cal.cfg
 # image name, default to xr_system
 # IMAGE_NAME :=
 

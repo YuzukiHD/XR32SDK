@@ -5,8 +5,8 @@
 # ----------------------------------------------------------------------------
 # board definition
 # ----------------------------------------------------------------------------
-__PRJ_CONFIG_BOARD := xr871_bl_base
-#__PRJ_CONFIG_BOARD := xr32_bl_base
+# __PRJ_CONFIG_BOARD := xr871_bl_base
+__PRJ_CONFIG_BOARD := xr32_bl_base
 
 # ----------------------------------------------------------------------------
 # override global config options
