@@ -6,7 +6,7 @@
 # config options
 # ----------------------------------------------------------------------------
 # chip and cpu
-__CONFIG_CHIP_TYPE ?= xr871
+__CONFIG_CHIP_TYPE ?= xr32
 __CONFIG_CPU_CM4F ?= y
 
 ifeq ($(__CONFIG_CHIP_TYPE), xr871)
