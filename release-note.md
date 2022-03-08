@@ -1,3 +1,5 @@
+## xr32sdk
+* Change to XR32 Chip
 
 ## xr871sdk-release-1.4.0
 * 系统
