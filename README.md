@@ -1,5 +1,5 @@
 # XR32SDK
-The SDK source code of XR32 SoC.
+The SDK source code of XR32 SoC. [![Sync To Gitee](https://github.com/YuzukiHD/XR32SDK/actions/workflows/Gitee.yml/badge.svg)](https://github.com/YuzukiHD/XR32SDK/actions/workflows/Gitee.yml)
 
 Based on [XradioTech/XR871SDK](https://github.com/XradioTech/XR871SDK)
 
