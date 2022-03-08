@@ -8,7 +8,7 @@ Based on [XradioTech/XR871SDK](https://github.com/XradioTech/XR871SDK)
 
 # License
 
-Copyright (C) 2022 YuzukiTsuru <gloomyghost@gloomyghost.com>. All rights reserved.
+Copyright (C) 2022 YuzukiTsuru <gloomyghost@gloomyghost.com>. All rights reserved.  
 Copyright (C) 2017 XRADIO TECHNOLOGY CO., LTD. All rights reserved.
   
  Redistribution and use in source and binary forms, with or without
