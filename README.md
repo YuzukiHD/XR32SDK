@@ -4,9 +4,7 @@ The SDK source code of XR32 SoC.
 Based on [XradioTech/XR871SDK](https://github.com/XradioTech/XR871SDK)
 
 ## Toolchain
-Download [gcc-arm-none-eabi-4_9](https://launchpad.net/gcc-arm-embedded/4.9/4.9-2015-q2-update) and place to prebuilt directory
-
-And setup toolchain.
+Before development, please setup toolchain.
 
 ```shell
 ./setup_toolchain.sh 

@@ -18,3 +18,4 @@
 /project/*/gcc/mdk_debug/*.uvguix.*
 prebuilt/gcc-arm-none-eabi-4_9-2015q2-20150609-linux.tar.bz2
 tools/gcc-arm-none-eabi-4_9-2015q2
+gcc.mk
