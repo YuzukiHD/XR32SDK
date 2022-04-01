@@ -1,8 +1,3 @@
-/**
-  * @file  drv_rgb_led.h
-  * @author  XRADIO IOT WLAN Team
-  */
-
 /*
  * Copyright (C) 2017 XRADIO TECHNOLOGY CO., LTD. All rights reserved.
  *
@@ -32,55 +27,35 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __RGB_LED_H__
-#define __RGB_LED_H__
-
-#include "driver/chip/hal_gpio.h"
-#include "driver/chip/hal_pwm.h"
-#include "driver/component/component_def.h"
+#ifndef _PRJ_CONFIG_H_
+#define _PRJ_CONFIG_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define MaxBrightness uint32_t
+/*
+ * project base config
+ */
 
-typedef enum {
-    RGB_HIGH_LEVEL_VALID,
-    RGB_LOW_LEVEL_VALID,
-} RGB_LED_TYPE;
+/* stack size for IRQ service */
+#define PRJCONF_MSP_STACK_SIZE          (1 * 1024)
 
-/**
-  * @brief The RGB LED ctrl info.
-  */
-typedef struct {
-    RGB_LED_TYPE type; /*!< The type of led. If use RGB_HIGH_LEVEL_VALID, it's stand for
-	                                            high level the led is turn on*/
-    int ledFrequency;  /*!< The frequency for pwm */
-    PWM_CH_ID r_Led;   /*!< The pwm channel*/
-    PWM_CH_ID g_Led;   /*!< The pwm channel*/
-    PWM_CH_ID b_Led;   /*!< The pwm channel*/
-} Rgb_Led_Info;
+/* main thread priority */
+#define PRJCONF_MAIN_THREAD_PRIO        OS_THREAD_PRIO_APP
 
-/**
-  * @brief The RGB LED ctrl info.
-  */
-typedef struct {
-    uint32_t r_Value; /*!< The brightness for read led*/
-    uint32_t g_Value; /*!< The brightness for green led*/
-    uint32_t b_Value; /*!< The brightness for blue led*/
-} Rgb_Led_Value;
+/* main thread stack size */
+#define PRJCONF_MAIN_THREAD_STACK_SIZE  (2 * 1024)
 
-MaxBrightness Drv_Rgb_Led_Cfg(Rgb_Led_Info* led_info);
-void Drv_Rgb_Led_DeInit();
-void Drv_Rgb_LedEnable();
-void Drv_Rgb_LedDisable();
-void Drv_Rgb_Led_Set(Rgb_Led_Value* set);
+/*
+ * project hardware feature
+ */
 
-void RGB_LedTest();
+/* uart enable/disable */
+#define PRJCONF_UART_EN                 1
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __RGB_LED_H__ */
+#endif /* _PRJ_CONFIG_H_ */
