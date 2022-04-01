@@ -181,7 +181,7 @@ int main(void)
 	/*Wait for picture.*/
 	while (private_frame_done == 0) {
 		i++;
-		if (i >= 10) {
+		if (i >= 100) {
 			printf("capture picture time out\n");
 			break;
 		}
