@@ -36,10 +36,14 @@
 #include <string.h>
 #include <stdlib.h>
 
+
 #include "kernel/os/os.h"
 #include "driver/chip/hal_i2c.h"
 #include "driver/chip/hal_dma.h"
 #include "driver/chip/hal_uart.h"
+#include "driver/chip/hal_csi.h"
+
+#include "driver/component/csi_camera/camera_csi.h"
 
 #include "driver/component/csi_camera/ov7670/drv_ov7670.h"
 #include "ov7670_cfg.h"
@@ -54,7 +58,7 @@
 #define DRV_OV7670_DBG(fmt, arg...)	\
 			LOG(OV7670_DBG, "[OV7670] "fmt, ##arg)
 
-#define OV7670_I2CID I2C1_ID
+#define OV7670_I2CID I2C0_ID
 #define OV7670_IIC_CLK_FREQ	100000
 #define OV7670_SCCB_ID 0X21  			//OV7670 дID
 
@@ -62,7 +66,7 @@ static OS_Semaphore_t private_ov7670_sem_wait;
 static volatile uint32_t private_image_buff_addr = 0;
 static volatile uint32_t private_image_data_count = 0;
 static uint32_t private_image_size = 0;
-static Ov7670_PowerCtrlCfg private_ov7670_power;
+static Cam_PowerCtrlCfg private_ov7670_power;
 static DMA_Channel ov7670_dma_ch_fifo_a = DMA_CHANNEL_INVALID;
 static DMA_Channel ov7670_dma_ch_fifo_b = DMA_CHANNEL_INVALID;
 
@@ -133,8 +137,8 @@ static Component_Status OV7670_Init(void)
 		}
 	}
 
-	Drv_OV7670_Light_Mode(lightmode);
-	Drv_OV7670_Color_Saturation(saturation);
+	Drv_CAM_LIGHT_MODE(lightmode);
+	Drv_CAM_COLOR_SATURATION(saturation);
 	Drv_OV7670_Contrast(contrast);
  	Drv_OV7670_Special_Effects(effect);
 	Drv_OV7670_Window_Set(12,176,240,320);
@@ -271,7 +275,7 @@ static void Ov7670_Vcan_Sendimg(void *imgaddr, uint32_t imgsize)
   * @param light_mode: light mode.
   * @retval None
   */
-void Drv_OV7670_Light_Mode(OV7670_LIGHT_MODE light_mode)
+void Drv_CAM_LIGHT_MODE(CAM_LIGHT_MODE light_mode)
 {
 	uint8_t reg13val = 0XE7, reg01val = 0, reg02val = 0;
 	switch(light_mode) {
@@ -311,7 +315,7 @@ void Drv_OV7670_Light_Mode(OV7670_LIGHT_MODE light_mode)
   * @param sat: The color saturation.
   * @retval None
   */
-void Drv_OV7670_Color_Saturation(OV7670_COLOR_SATURATION sat)
+void Drv_CAM_COLOR_SATURATION(CAM_COLOR_SATURATION sat)
 {
 	uint8_t reg4f5054val = 0X80, reg52val = 0X22, reg53val = 0X5E;
 	switch(sat) {
@@ -356,7 +360,7 @@ void Drv_OV7670_Color_Saturation(OV7670_COLOR_SATURATION sat)
   * @param brihgt: The brightness value.
   * @retval None
   */
-void Drv_OV7670_Brightness(OV7670_BRIGHTNESS bright)
+void Drv_CAM_BRIGHTNESS(CAM_BRIGHTNESS bright)
 {
 	uint8_t reg55val = 0X00;
 	switch(bright) {
@@ -385,7 +389,7 @@ void Drv_OV7670_Brightness(OV7670_BRIGHTNESS bright)
   * @param contrast: The contrast value.
   * @retval None
   */
-void Drv_OV7670_Contrast(OV7670_CONTARST contrast)
+void Drv_OV7670_Contrast(CAM_CONTARST contrast)
 {
 	uint8_t reg56val = 0X40;
 	switch(contrast) {
@@ -413,7 +417,7 @@ void Drv_OV7670_Contrast(OV7670_CONTARST contrast)
   * @param eft: effects.
   * @retval None
   */
-void Drv_OV7670_Special_Effects(OV7670_SPECAIL_EFFECTS eft)
+void Drv_OV7670_Special_Effects(CAM_SPECAIL_EFFECTS eft)
 {
 	uint8_t reg3aval = 0X04;
 	uint8_t reg67val = 0XC0;
@@ -508,7 +512,7 @@ void Drv_Ov7670_Set_SaveImage_Buff(uint32_t image_buff_addr)
   * @param cfg: The io info.
   * @retval None
   */
-void Drv_Ov7670_PowerInit(Ov7670_PowerCtrlCfg *cfg)
+void Drv_Ov7670_PowerInit(Cam_PowerCtrlCfg *cfg)
 {
 	private_ov7670_power = *cfg;
 	GPIO_InitParam param;
@@ -516,8 +520,8 @@ void Drv_Ov7670_PowerInit(Ov7670_PowerCtrlCfg *cfg)
 	param.mode = GPIOx_Pn_F1_OUTPUT;
 	param.pull = GPIO_PULL_NONE;
 
-	HAL_GPIO_Init(cfg->Ov7670_Pwdn_Port, cfg->Ov7670_Pwdn_Pin, &param);
-	HAL_GPIO_Init(cfg->Ov7670_Reset_Port, cfg->Ov7670_Reset_Pin, &param);
+	HAL_GPIO_Init(cfg->Cam_Pwdn_Port, cfg->Cam_Pwdn_Pin, &param);
+	HAL_GPIO_Init(cfg->Cam_Reset_Port, cfg->Cam_Reset_Pin, &param);
 }
 
 /**
@@ -527,8 +531,8 @@ void Drv_Ov7670_PowerInit(Ov7670_PowerCtrlCfg *cfg)
 void Drv_Ov7670_Reset_Pin_Ctrl(GPIO_PinState state)
 {
 
-	HAL_GPIO_WritePin(private_ov7670_power.Ov7670_Reset_Port,
-					  private_ov7670_power.Ov7670_Reset_Pin, state);
+	HAL_GPIO_WritePin(private_ov7670_power.Cam_Reset_Port,
+					  private_ov7670_power.Cam_Reset_Pin, state);
 }
 
 /**
@@ -537,8 +541,8 @@ void Drv_Ov7670_Reset_Pin_Ctrl(GPIO_PinState state)
   */
 void Drv_Ov7670_Pwdn_Pin_Ctrl(GPIO_PinState state)
 {
-	HAL_GPIO_WritePin(private_ov7670_power.Ov7670_Pwdn_Port,
-		              private_ov7670_power.Ov7670_Pwdn_Pin, state);
+	HAL_GPIO_WritePin(private_ov7670_power.Cam_Pwdn_Port,
+		              private_ov7670_power.Cam_Pwdn_Pin, state);
 
 }
 

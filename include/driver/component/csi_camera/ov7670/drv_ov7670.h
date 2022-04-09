@@ -45,74 +45,7 @@
 
 #define OV7670_PICTURE_SEND_UART UART0_ID
 
-/**
-  * @brief Light mode.
-  */
-typedef enum {
-	LIGHT_AUTO,
-	LIGHT_SUNNY,
-	LIGHT_COLUDY,
-	LIGHT_OFFICE,
-	LIGHT_HOME,
-} OV7670_LIGHT_MODE;
-
-/**
-  * @brief Color saturation.
-  */
-typedef enum {
-	COLOR_SATURATION_0, /*!< -2 */
-	COLOR_SATURATION_1, /*!< -1*/
-	COLOR_SATURATION_2, /*!< The default */
-	COLOR_SATURATION_3, /*!< 1 */
-	COLOR_SATURATION_4, /*!< 2 */
-} OV7670_COLOR_SATURATION;
-
-/**
-  * @brief Color saturation.
-  */
-typedef enum {
-	BRIGHT_0,  /*!< birghtness -2 */
-	BRIGHT_1,  /*!< -1 */
-	BRIGHT_2,  /*!< The default */
-	BRIGHT_3,  /*!< 1 */
-	BRIGHT_4,  /*!< 2 */
-} OV7670_BRIGHTNESS;
-
-/**
-  * @brief contarst.
-  */
-typedef enum {
-	CONTARST_0, /*!< -2 */
-	CONTARST_1, /*!< -1 */
-	CONTARST_2, /*!< The default */
-	CONTARST_3, /*!< 1 */
-	CONTARST_4, /*!< 2 */
-} OV7670_CONTARST;
-
-/**
-  * @brief effects.
-  */
-typedef enum {
-	IMAGE_NOMAL,
-	IMAGE_NEGATIVE,
-	IMAGE_BLACK_WHITE,
-	IMAGE_SLANT_RED,
-	IMAGE_SLANT_GREEN,
-	IMAGE_SLANT_BLUE,
-	IMAGE_VINTAGE,
-} OV7670_SPECAIL_EFFECTS;
-
-/**
-  * @brief Config power ctrl.
-  */
-typedef struct {
-	GPIO_Port Ov7670_Reset_Port;
-	GPIO_Pin Ov7670_Reset_Pin;
-	GPIO_Port Ov7670_Pwdn_Port;
-	GPIO_Pin Ov7670_Pwdn_Pin;
-}Ov7670_PowerCtrlCfg;
-
-void Drv_Ov7670_PowerInit(Ov7670_PowerCtrlCfg *cfg);
+void Drv_Ov7670_PowerInit(Cam_PowerCtrlCfg *cfg);
 void Drv_Ov7670_Reset_Pin_Ctrl(GPIO_PinState state);
 void Drv_Ov7670_Pwdn_Pin_Ctrl(GPIO_PinState state);
 Component_Status Drv_Ov7670_Init();
@@ -123,11 +56,11 @@ void Drv_Ov7670_Uart_Send_Picture(void *buf, uint32_t image_size);
 void Drv_Ov7670_DeInit();
 
 void Drv_OV7670_Window_Set(uint16_t sx,uint16_t sy,uint16_t width,uint16_t height);
-void Drv_OV7670_Special_Effects(OV7670_SPECAIL_EFFECTS eft);
-void Drv_OV7670_Contrast(OV7670_CONTARST contrast);
-void Drv_OV7670_Light_Mode(OV7670_LIGHT_MODE light_mode);
-void Drv_OV7670_Color_Saturation(OV7670_COLOR_SATURATION sat);
-void Drv_OV7670_Brightness(OV7670_BRIGHTNESS bright);
+void Drv_OV7670_Special_Effects(CAM_SPECAIL_EFFECTS eft);
+void Drv_OV7670_Contrast(CAM_CONTARST contrast);
+void Drv_CAM_LIGHT_MODE(CAM_LIGHT_MODE light_mode);
+void Drv_CAM_COLOR_SATURATION(CAM_COLOR_SATURATION sat);
+void Drv_CAM_BRIGHTNESS(CAM_BRIGHTNESS bright);
 
 Component_Status Ov7670_Demo();
 
