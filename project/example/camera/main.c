@@ -102,7 +102,7 @@ int main(void) {
 	}
 
     Drv_Ov7670_Capture_Enable(CSI_STILL_MODE, CSI_ENABLE);
-    image_size = Drv_Ov7670_Capture_Componemt(10000);
+    image_size = Drv_Ov7670_Capture_Componemt(1000000);
     printf("[Ov7670] image_size %u\n", image_size);
 
     Drv_Ov7670_DeInit();
