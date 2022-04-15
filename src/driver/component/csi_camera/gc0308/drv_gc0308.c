@@ -1,28 +1,23 @@
 
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
-
-
-#include "kernel/os/os.h"
-#include "driver/chip/hal_i2c.h"
-#include "driver/chip/hal_dma.h"
-#include "driver/chip/hal_uart.h"
 #include "driver/chip/hal_csi.h"
-
+#include "driver/chip/hal_dma.h"
+#include "driver/chip/hal_i2c.h"
+#include "driver/chip/hal_uart.h"
+#include "kernel/os/os.h"
 
 #include "driver/component/csi_camera/camera_csi.h"
 
 #include "driver/component/csi_camera/gc0308/drv_gc0308.h"
 #include "gc0308_cfg.h"
 
-
-
-#define GC0308_I2CID I2C1_ID
-#define GC0308_IIC_CLK_FREQ	100000
-#define GC0308_SCCB_ID 0X21  			//GC0308 ID
+#define GC0308_I2CID I2C0_ID
+#define GC0308_IIC_CLK_FREQ 100000
+#define GC0308_SCCB_ID 0X21  //GC0308 ID
 
 static OS_Semaphore_t gc0308_sem_wait;
 static volatile uint32_t gc0308_image_buff_addr = 0;
@@ -33,22 +28,19 @@ static Cam_PowerCtrlCfg gc0308_power;
 static DMA_Channel GC0308_dma_ch_fifo_a = DMA_CHANNEL_INVALID;
 static DMA_Channel GC0308_dma_ch_fifo_b = DMA_CHANNEL_INVALID;
 
+void GC0308_config_window(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
 
-void GC0308_config_window(unsigned int startx,unsigned int starty,unsigned int width, unsigned int height);
-
-
-static void GC0308Sccb_Init()
-{
+static void GC0308Sccb_Init() {
     GPIO_InitParam param;
     I2C_InitParam initParam;
 
     param.driving = GPIO_DRIVING_LEVEL_1;
-    param.mode = GPIOA_P17_F4_I2C1_SCL;
+    param.mode = GPIOA_P17_F2_I2C0_SCL;
     param.pull = GPIO_PULL_UP;
     HAL_GPIO_Init(GPIO_PORT_A, GPIO_PIN_17, &param);
 
     param.driving = GPIO_DRIVING_LEVEL_1;
-    param.mode = GPIOA_P18_F4_I2C1_SDA;
+    param.mode = GPIOA_P18_F2_I2C0_SDA;
     param.pull = GPIO_PULL_UP;
     HAL_GPIO_Init(GPIO_PORT_A, GPIO_PIN_18, &param);
 
@@ -57,18 +49,15 @@ static void GC0308Sccb_Init()
     HAL_I2C_Init(GC0308_I2CID, &initParam);
 }
 
-static int GC0308Sccb_Write(uint8_t sub_addr, uint8_t data)
-{
+static int GC0308Sccb_Write(uint8_t sub_addr, uint8_t data) {
     return HAL_I2C_SCCB_Master_Transmit_IT(GC0308_I2CID, GC0308_SCCB_ID, sub_addr, &data);
 }
 
-static int GC0308Sccb_Read(uint8_t sub_addr, uint8_t *data)
-{
+static int GC0308Sccb_Read(uint8_t sub_addr, uint8_t* data) {
     return HAL_I2C_SCCB_Master_Receive_IT(GC0308_I2CID, GC0308_SCCB_ID, sub_addr, data);
 }
 
-int Drv_GC0308_EnvironmentInit(void)
-{
+int Drv_GC0308_EnvironmentInit(void) {
     OS_Status sta = OS_SemaphoreCreate(&gc0308_sem_wait, 0, 1);
     if (sta != OS_OK) {
         COMPONENT_WARN("gc0308 semaphore create error, %d\n", sta);
@@ -77,11 +66,9 @@ int Drv_GC0308_EnvironmentInit(void)
     return COMP_OK;
 }
 
-static Component_Status GC0308_Init(void)
-{
+static Component_Status GC0308_Init(void) {
     uint8_t temp;
     uint16_t i = 0;
-
 
     temp = 0x5a;
 
@@ -100,7 +87,6 @@ static Component_Status GC0308_Init(void)
 
     OS_MSleep(1000);
 
-
     for (i = 0; i < sizeof(gc0308_init_reg_tbl) / sizeof(gc0308_init_reg_tbl[0]); i++) {
         if (!GC0308Sccb_Write(gc0308_init_reg_tbl[i][0], gc0308_init_reg_tbl[i][1])) {
             COMPONENT_WARN("GC0308 sccb read error\n");
@@ -113,14 +99,12 @@ static Component_Status GC0308_Init(void)
     return COMP_OK;
 }
 
-static void GC0308_Stop_Dma(void *arg)
-{
-    DMA_Channel *ch = (DMA_Channel *)arg;
+static void GC0308_Stop_Dma(void* arg) {
+    DMA_Channel* ch = ( DMA_Channel* )arg;
     HAL_DMA_Stop(*ch);
 }
 
-static void GC0308_Dma_Reque(DMA_Channel *ch)
-{
+static void GC0308_Dma_Reque(DMA_Channel* ch) {
     *ch = HAL_DMA_Request();
     if (*ch == DMA_CHANNEL_INVALID) {
         COMPONENT_WARN("dma error\n");
@@ -128,45 +112,39 @@ static void GC0308_Dma_Reque(DMA_Channel *ch)
     }
 
     DMA_ChannelInitParam param;
-    param.cfg =  HAL_DMA_MakeChannelInitCfg(DMA_WORK_MODE_SINGLE,
-                                            DMA_WAIT_CYCLE_1,
-                                            DMA_BYTE_CNT_MODE_NORMAL,
+    param.cfg = HAL_DMA_MakeChannelInitCfg(DMA_WORK_MODE_SINGLE,
+                                           DMA_WAIT_CYCLE_1,
+                                           DMA_BYTE_CNT_MODE_NORMAL,
 
-                                            DMA_DATA_WIDTH_32BIT,
-                                            DMA_BURST_LEN_4,
-                                            DMA_ADDR_MODE_INC,
-                                            DMA_PERIPH_SRAM,
+                                           DMA_DATA_WIDTH_32BIT,
+                                           DMA_BURST_LEN_4,
+                                           DMA_ADDR_MODE_INC,
+                                           DMA_PERIPH_SRAM,
 
-                                            DMA_DATA_WIDTH_32BIT,
-                                            DMA_BURST_LEN_4,
-                                            DMA_ADDR_MODE_INC,
-                                            DMA_PERIPH_SRAM);
+                                           DMA_DATA_WIDTH_32BIT,
+                                           DMA_BURST_LEN_4,
+                                           DMA_ADDR_MODE_INC,
+                                           DMA_PERIPH_SRAM);
 
-
-    param.endArg = (void *)ch;
+    param.endArg = ( void* )ch;
     param.endCallback = GC0308_Stop_Dma;
     param.irqType = DMA_IRQ_TYPE_END;
     HAL_DMA_Init(*ch, &param);
 }
 
-void read_fifo_a(DMA_Channel channel, uint32_t len)
-{
+void read_fifo_a(DMA_Channel channel, uint32_t len) {
 
     HAL_DMA_Start(channel, CSI_FIFO_A, (gc0308_image_buff_addr + gc0308_image_data_count), len);
     gc0308_image_data_count += len;
-
 }
 
-void read_fifo_b(DMA_Channel channel, uint32_t len)
-{
+void read_fifo_b(DMA_Channel channel, uint32_t len) {
 
     HAL_DMA_Start(channel, CSI_FIFO_B, (gc0308_image_buff_addr + gc0308_image_data_count), len);
     gc0308_image_data_count += len;
-
 }
 
-void GC0308_Irq(void *arg)
-{
+void GC0308_Irq(void* arg) {
     uint32_t irq_sta = HAL_CSI_Interrupt_Sta();
     HAL_CSI_Interrupt_Clear();
     CSI_FIFO_Data_Len len = HAL_CSI_FIFO_Data_Len();
@@ -180,7 +158,7 @@ void GC0308_Irq(void *arg)
         if (sta != OS_OK) {
             COMPONENT_WARN("GC0308 semaphore release error, %d\n", sta);
         }
-
+        COMPONENT_WARN("GC0308 semaphore release done\n");
         gc0308_image_size = gc0308_image_data_count;
         gc0308_image_data_count = 0;
     }
@@ -189,11 +167,10 @@ void GC0308_Irq(void *arg)
         COMPONENT_WARN("fifo overflow!\n");
 }
 
-void GC0308_Csi_Init()
-{
+void GC0308_Csi_Init() {
     CSI_Config csi_cfg;
     HAL_CSI_Moudle_Enalbe(CSI_DISABLE);
-    csi_cfg.src_Clk.clk =  CCM_AHB_PERIPH_CLK_SRC_HFCLK;
+    csi_cfg.src_Clk.clk = CCM_AHB_PERIPH_CLK_SRC_HFCLK;
     csi_cfg.src_Clk.divN = CCM_PERIPH_CLK_DIV_N_1;
     csi_cfg.src_Clk.divM = CCM_PERIPH_CLK_DIV_M_1;
     HAL_CSI_Config(&csi_cfg);
@@ -216,7 +193,6 @@ void GC0308_Csi_Init()
     HAL_CSI_Interrupt_Cfg(CSI_FIFO_0_B_READY_IRQ, CSI_ENABLE);
     HAL_CSI_Interrupt_Cfg(CSI_FIFO_0_OVERFLOW_IRQ, CSI_ENABLE);
 
-
     CSI_Call_Back cb;
     cb.arg = NULL;
     cb.callBack = GC0308_Irq;
@@ -226,8 +202,6 @@ void GC0308_Csi_Init()
     COMPONENT_TRACK("end\n");
 }
 
-
-
 /**
   * @brief Seclet the light mode.
   * @note This function is used to set the light mode for camera.
@@ -235,10 +209,9 @@ void GC0308_Csi_Init()
   * @param light_mode: light mode.
   * @retval None
   */
-void Drv_GC0308_Light_Mode(CAM_LIGHT_MODE light_mode)
-{
+void Drv_GC0308_Light_Mode(CAM_LIGHT_MODE light_mode) {
     uint8_t reg13val = 0XE7, reg01val = 0, reg02val = 0;
-    switch(light_mode) {
+    switch (light_mode) {
     case LIGHT_AUTO:
         reg13val = 0XE7;
         reg01val = 0;
@@ -275,16 +248,15 @@ void Drv_GC0308_Light_Mode(CAM_LIGHT_MODE light_mode)
   * @param sat: The color saturation.
   * @retval None
   */
-void Drv_GC0308_Color_Saturation(CAM_COLOR_SATURATION sat)
-{
+void Drv_GC0308_Color_Saturation(CAM_COLOR_SATURATION sat) {
     uint8_t reg4f5054val = 0X80, reg52val = 0X22, reg53val = 0X5E;
-    switch(sat) {
-    case COLOR_SATURATION_0://-2
+    switch (sat) {
+    case COLOR_SATURATION_0:  //-2
         reg4f5054val = 0X40;
         reg52val = 0X11;
         reg53val = 0X2F;
         break;
-    case COLOR_SATURATION_1://-1
+    case COLOR_SATURATION_1:  //-1
         reg4f5054val = 0X66;
         reg52val = 0X1B;
         reg53val = 0X4B;
@@ -312,7 +284,6 @@ void Drv_GC0308_Color_Saturation(CAM_COLOR_SATURATION sat)
     GC0308Sccb_Write(0X52, reg52val);
     GC0308Sccb_Write(0X53, reg53val);
     GC0308Sccb_Write(0X54, reg4f5054val);
-
 }
 
 /**
@@ -320,11 +291,10 @@ void Drv_GC0308_Color_Saturation(CAM_COLOR_SATURATION sat)
   * @param brihgt: The brightness value.
   * @retval None
   */
-void Drv_GC0308_Brightness(CAM_BRIGHTNESS bright)
-{
+void Drv_GC0308_Brightness(CAM_BRIGHTNESS bright) {
     uint8_t reg55val = 0X00;
-    switch(bright) {
-    case BRIGHT_0:		//-2
+    switch (bright) {
+    case BRIGHT_0:  //-2
         reg55val = 0XB0;
         break;
     case BRIGHT_1:
@@ -341,7 +311,7 @@ void Drv_GC0308_Brightness(CAM_BRIGHTNESS bright)
         break;
     }
 
-    GC0308Sccb_Write(0X55,reg55val);
+    GC0308Sccb_Write(0X55, reg55val);
 }
 
 /**
@@ -349,11 +319,10 @@ void Drv_GC0308_Brightness(CAM_BRIGHTNESS bright)
   * @param contrast: The contrast value.
   * @retval None
   */
-void Drv_GC0308_Contrast(CAM_CONTARST contrast)
-{
+void Drv_GC0308_Contrast(CAM_CONTARST contrast) {
     uint8_t reg56val = 0X40;
-    switch(contrast) {
-    case CONTARST_0:	//-2
+    switch (contrast) {
+    case CONTARST_0:  //-2
         reg56val = 0X30;
         break;
     case CONTARST_1:
@@ -369,7 +338,7 @@ void Drv_GC0308_Contrast(CAM_CONTARST contrast)
         reg56val = 0X60;
         break;
     }
-    GC0308Sccb_Write(0X56,reg56val);
+    GC0308Sccb_Write(0X56, reg56val);
 }
 
 /**
@@ -377,13 +346,12 @@ void Drv_GC0308_Contrast(CAM_CONTARST contrast)
   * @param eft: effects.
   * @retval None
   */
-void Drv_GC0308_Special_Effects(CAM_SPECAIL_EFFECTS eft)
-{
+void Drv_GC0308_Special_Effects(CAM_SPECAIL_EFFECTS eft) {
     uint8_t reg3aval = 0X04;
     uint8_t reg67val = 0XC0;
     uint8_t reg68val = 0X80;
-    switch(eft) {
-    case IMAGE_NOMAL:	//nomal
+    switch (eft) {
+    case IMAGE_NOMAL:  //nomal
         reg3aval = 0X04;
         reg67val = 0XC0;
         reg68val = 0X80;
@@ -433,26 +401,25 @@ void Drv_GC0308_Special_Effects(CAM_SPECAIL_EFFECTS eft)
   * @param height: Window height.
   * @retval None
   */
-void Drv_GC0308_Window_Set(uint16_t sx,uint16_t sy,uint16_t width,uint16_t height)
-{
+void Drv_GC0308_Window_Set(uint16_t sx, uint16_t sy, uint16_t width, uint16_t height) {
     uint16_t endx;
     uint16_t endy;
     uint8_t temp;
 
-    endx = sx + width * 2;		//V*2
+    endx = sx + width * 2;  //V*2
     endy = sy + height * 2;
-    if(endy > 784)
+    if (endy > 784)
         endy -= 784;
 
     GC0308Sccb_Read(0X03, &temp);
     temp &= 0XF0;
     temp |= ((endx & 0X03) << 2) | (sx & 0X03);
     GC0308Sccb_Write(0X03, temp);
-    GC0308Sccb_Write(0X19, sx>>2);
-    GC0308Sccb_Write(0X1A, endx>>2);
+    GC0308Sccb_Write(0X19, sx >> 2);
+    GC0308Sccb_Write(0X1A, endx >> 2);
     GC0308Sccb_Read(0X32, &temp);
     temp &= 0XC0;
-    temp |= ((endy & 0X07) << 3) | (sy&0X07);
+    temp |= ((endy & 0X07) << 3) | (sy & 0X07);
     GC0308Sccb_Write(0X32, temp);
     GC0308Sccb_Write(0X17, sy >> 3);
     GC0308Sccb_Write(0X18, endy >> 3);
@@ -461,37 +428,36 @@ void Drv_GC0308_Window_Set(uint16_t sx,uint16_t sy,uint16_t width,uint16_t heigh
 //(140,16,640,480) is good for VGA
 //(272,16,320,240) is good for QVGA
 /* config_GC0308_window */
-void GC0308_config_window(unsigned int startx,unsigned int starty,unsigned int width, unsigned int height)
-{
+void GC0308_config_window(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height) {
     unsigned int endx;
-    unsigned int endy;// "v*2"±ØÐë
+    unsigned int endy;  // "v*2"ï¿½ï¿½ï¿½ï¿½
     unsigned char temp_reg1, temp_reg2;
-    unsigned char temp=0;
+    unsigned char temp = 0;
 
-    endx=(startx+width*2)%784;
-    endy=(starty+height*2);// "v*2"±ØÐë
+    endx = (startx + width * 2) % 784;
+    endy = (starty + height * 2);  // "v*2"ï¿½ï¿½ï¿½ï¿½
 
-    GC0308Sccb_Read(0x32, &temp_reg2 );
+    GC0308Sccb_Read(0x32, &temp_reg2);
     temp_reg2 &= 0xc0;
 
-    GC0308Sccb_Read(0x03, &temp_reg1 );
+    GC0308Sccb_Read(0x03, &temp_reg1);
     temp_reg1 &= 0xf0;
 
     // Horizontal
-    temp = temp_reg2|((endx&0x7)<<3)|(startx&0x7);
-    GC0308Sccb_Write(0x32, temp );
-    temp = (startx&0x7F8)>>3;
-    GC0308Sccb_Write(0x17, temp );
-    temp = (endx&0x7F8)>>3;
-    GC0308Sccb_Write(0x18, temp );
+    temp = temp_reg2 | ((endx & 0x7) << 3) | (startx & 0x7);
+    GC0308Sccb_Write(0x32, temp);
+    temp = (startx & 0x7F8) >> 3;
+    GC0308Sccb_Write(0x17, temp);
+    temp = (endx & 0x7F8) >> 3;
+    GC0308Sccb_Write(0x18, temp);
 
     // Vertical
-    temp =temp_reg1|((endy&0x3)<<2)|(starty&0x3);
-    GC0308Sccb_Write(0x03, temp );
-    temp = starty>>2;
-    GC0308Sccb_Write(0x19, temp );
-    temp = endy>>2;
-    GC0308Sccb_Write(0x1A, temp );
+    temp = temp_reg1 | ((endy & 0x3) << 2) | (starty & 0x3);
+    GC0308Sccb_Write(0x03, temp);
+    temp = starty >> 2;
+    GC0308Sccb_Write(0x19, temp);
+    temp = endy >> 2;
+    GC0308Sccb_Write(0x1A, temp);
 }
 
 /**
@@ -499,8 +465,7 @@ void GC0308_config_window(unsigned int startx,unsigned int starty,unsigned int w
   * @note The buff size must be sufficient.
   * @retval None
   */
-void Drv_GC0308_Set_SaveImage_Buff(uint32_t image_buff_addr)
-{
+void Drv_GC0308_Set_SaveImage_Buff(uint32_t image_buff_addr) {
     gc0308_image_data_count = 0;
     gc0308_image_buff_addr = image_buff_addr;
 }
@@ -510,8 +475,7 @@ void Drv_GC0308_Set_SaveImage_Buff(uint32_t image_buff_addr)
   * @param cfg: The io info.
   * @retval None
   */
-void Drv_GC0308_PowerInit(Cam_PowerCtrlCfg *cfg)
-{
+void Drv_GC0308_PowerInit(Cam_PowerCtrlCfg* cfg) {
     gc0308_power = *cfg;
     GPIO_InitParam param;
     param.driving = GPIO_DRIVING_LEVEL_1;
@@ -526,8 +490,7 @@ void Drv_GC0308_PowerInit(Cam_PowerCtrlCfg *cfg)
   * @brief Ctrl the reset pin.
   * @retval None
   */
-void Drv_GC0308_Reset_Pin_Ctrl(GPIO_PinState state)
-{
+void Drv_GC0308_Reset_Pin_Ctrl(GPIO_PinState state) {
 
     HAL_GPIO_WritePin(gc0308_power.Cam_Reset_Port,
                       gc0308_power.Cam_Reset_Pin, state);
@@ -537,19 +500,16 @@ void Drv_GC0308_Reset_Pin_Ctrl(GPIO_PinState state)
   * @brief Ctrl the pwdn pin.
   * @retval None
   */
-void Drv_GC0308_Pwdn_Pin_Ctrl(GPIO_PinState state)
-{
+void Drv_GC0308_Pwdn_Pin_Ctrl(GPIO_PinState state) {
     HAL_GPIO_WritePin(gc0308_power.Cam_Pwdn_Port,
                       gc0308_power.Cam_Pwdn_Pin, state);
-
 }
 
 /**
   * @brief Init the GC0308 and csi interface.
   * @retval Component_Status : The driver status.
   */
-Component_Status Drv_GC0308_Init()
-{
+Component_Status Drv_GC0308_Init() {
     GC0308_Csi_Init();
     GC0308Sccb_Init();
     if (GC0308_Init() == -1) {
@@ -577,10 +537,8 @@ Component_Status Drv_GC0308_Init()
   * @ctrl:enable or disable
   * @retval Component_Status : The driver status.
   */
-Component_Status Drv_GC0308_Capture_Enable(CSI_CAPTURE_MODE mode, CSI_CTRL ctrl)
-{
+Component_Status Drv_GC0308_Capture_Enable(CSI_CAPTURE_MODE mode, CSI_CTRL ctrl) {
     HAL_CSI_Capture_Enable(mode, CSI_ENABLE);
-
     return COMP_OK;
 }
 
@@ -589,14 +547,10 @@ Component_Status Drv_GC0308_Capture_Enable(CSI_CAPTURE_MODE mode, CSI_CTRL ctrl)
   * @note: This function is wait the picture capture done.
   * @retval capture picture size.
   */
-uint32_t Drv_GC0308_Capture_Componemt(uint32_t timeout_ms)
-{
+uint32_t Drv_GC0308_Capture_Componemt(uint32_t timeout_ms) {
     OS_SemaphoreWait(&gc0308_sem_wait, timeout_ms);
-
     uint32_t temp = gc0308_image_size;
     gc0308_image_size = 0;
-
-
     return temp;
 }
 
@@ -604,8 +558,7 @@ uint32_t Drv_GC0308_Capture_Componemt(uint32_t timeout_ms)
   * @brief Deinit the GC0308 and csi interface.
   * @retval Component_Status : The driver status.
   */
-void Drv_GC0308_DeInit()
-{
+void Drv_GC0308_DeInit() {
     HAL_CSI_DeInit();
     HAL_I2C_DeInit(GC0308_I2CID);
     HAL_DMA_Release(GC0308_dma_ch_fifo_a);
@@ -614,9 +567,5 @@ void Drv_GC0308_DeInit()
     if (sta != OS_OK) {
         COMPONENT_WARN("GC0308 semaphore delete error, %d\n", sta);
     }
+    COMPONENT_WARN("GC0308 semaphore delete done, %d\n", sta);
 }
-
-
-
-
-
