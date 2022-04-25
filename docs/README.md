@@ -7,7 +7,7 @@ The recommended operating system is `Ubuntu 18.04 WSL` and `Ubuntu 20.04 WSL`. I
 
 ## Install necessary packages
 ``` shell
-sudo apt install wget unzip build-essential git bc swig libncurses-dev libpython3-dev libssl-dev python3-distutils
+sudo apt install wget unzip build-essential git bc swig libncurses-dev libpython3-dev libssl-dev python3-distutils libc6-i386
 ```
 
 ## Download BSP
